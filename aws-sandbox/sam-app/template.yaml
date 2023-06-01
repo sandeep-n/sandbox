@@ -1,0 +1,45 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  sam-app
+
+  Sample SAM Template for sam-app
+
+Parameters:
+  AppName:
+    Type: String
+    Default: pet-store
+  Stage:
+    Type: String
+    Default: dev_local
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 3
+
+Resources:
+
+  Api:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name:
+        Fn::Sub: ${AppName}-api-${Stage}
+      StageName: !Ref Stage 
+      DefinitionBody:
+        Fn::Transform:
+          Name: AWS::Include
+          Parameters:
+            Location: oas.yaml
+      Variables:
+        Stage:
+          Fn::Sub: ${Stage}
+
+  InventoryFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: pet_store/
+      Handler: app.get_inventory_handler
+      Runtime: python3.9
+      FunctionName:
+        Fn::Sub: ${AppName}-inventory-func-${Stage}

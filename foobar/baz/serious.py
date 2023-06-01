@@ -1,0 +1,3 @@
+
+def mourn():
+    print('sob')
